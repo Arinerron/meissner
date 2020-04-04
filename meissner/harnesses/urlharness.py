@@ -1,7 +1,7 @@
-from . import Harness
+from . import Harness, placeholder
 from meissner.logger import *
 
-import requests
+import requests, urllib.parse
 
 _default_method = 'GET'
 
@@ -21,9 +21,10 @@ class URLHarness(Harness):
             logger.warning('Request method ', colored_command(method), ' is unknown. Defaulting to ', colored_command(_default_method), '...')
             self.method = _default_method
 
+
     def test(self, payload):
         url = self.url.format(**{
-            placeholder : str(payload)
+            placeholder : urllib.parse.quote_from_bytes(bytes(payload), safe = '')
         })
 
         response = self.method(url)

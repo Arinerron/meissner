@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 
-import argparse
+import argparse, os
 
 from meissner.logger import *
 import meissner
+
+try:
+    from smartbytes import *
+except ModuleNotFoundError:
+    logging.error('Please install the smartbytes module:\n\n', colored_command('pip3 install --user smartbytes'), '\n')
+    exit(1)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Meissner Lop - XSS Filter Bypass Exploit Fuzzer')
@@ -16,7 +22,8 @@ if __name__ == '__main__':
     parser_fuzz.set_defaults(subcommand = 'fuzz')
 
     parser_fuzz.add_argument('--url', '--uri', '-u', default = False, type = str, help = 'use a URL harness, where {xss} is the injection point')
-    parser_fuzz.add_argument('--dictionary', '--dict', '-d', default = False, type = str, help = 'the meissner mutation dictionary to use')
+    parser_fuzz.add_argument('--dictionary', '--dict', '-d', default = '%s/dictionary/small.txt' % os.path.dirname(os.path.abspath(__file__)), type = str, help = 'the meissner mutation dictionary to use')
+    parser_fuzz.add_argument('--threads', '--threads-count', '-t', default = 4, type = int, help = 'the number of threads allocated to use for engines')
     parser_fuzz.add_argument('--filter', '-f', default = [], action='append', help = 'pass the input through a filter before the program')
     parser_fuzz.add_argument('--engine', '--browser', '-e', default = 'chrome', type = str, help = 'the browser rendering engine to use')
     parser_fuzz.add_argument('cmd', nargs = '*', default = None, help = 'the command to execute, where {xss} is the injection point')
@@ -84,7 +91,7 @@ if __name__ == '__main__':
     if filters:
         logging.debug('Using filters: ', colored_command(', '.join(_filters)))
 
-    # setup engine
+    # setup engines
 
     # TODO: support more engines
     all_engines = {
@@ -93,13 +100,40 @@ if __name__ == '__main__':
 
     engine = args.engine.strip().lower()
     if engine in all_engines:
-        engine = all_engines[engine]()
+        engine = all_engines[engine]
     else:
         logging.error('Engine ', colored_command(engine), ' does not exist. Please choose a valid engine from the list %s.' % repr(all_engines.keys()))
         exit(1)
+
+    # parse dictionary file
+
+    dictionary = set()
+
+    try:
+        with open(args.dictionary, 'rb') as f:
+            for line in f.read().split(b'\n'):
+                # skip empty lines
+                if not line:
+                    continue
+
+                dictionary.add(line)
+    except FileNotFoundError:
+        logging.exception('Dictionary file ', colored_command(args.dictionary), ' was not found. Please specify an existing file using the ', colored_command('--dictionary'), ' argument.')
+        exit(1)
+
+    # convert to list of smartbytes
+    dictionary = [smartbytes(x) for x in dictionary]
 
     # begin fuzzing
 
     logging.info('Initializing Meissner...')
 
-    fuzzer = meissner.Meissner(harness, filters = filters)
+    fuzzer = meissner.Meissner(harness, dictionary, filters = filters, engine = engine)
+    try:
+        fuzzer.start(threads = args.threads)
+    except KeyboardInterrupt:
+        logging.warning('Stopped Meissner... but it wasn\'t even running yet?')
+    except:
+        logging.exception('An unknown error occurred. Please report this.')
+
+    logging.debug('Goodbye!')
