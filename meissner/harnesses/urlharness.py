@@ -18,7 +18,7 @@ class URLHarness(Harness):
         logging.debug('... using ', colored_command(method.strip().upper()), ' request to URL: ', colored_command(url))
 
         if not self.method:
-            logger.warning('Request method ', colored_command(method), ' is unknown. Defaulting to ', colored_command(_default_method), '...')
+            logging.warning('Request method ', colored_command(method), ' is unknown. Defaulting to ', colored_command(_default_method), '...')
             self.method = _default_method
 
 

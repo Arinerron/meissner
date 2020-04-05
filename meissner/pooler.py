@@ -29,6 +29,7 @@ class EngineWorker(threading.Thread):
             try:
                 # get the job OBJECT
                 job = self.pool.meissner.mutator.jobs.pop(0)
+                self.pool.meissner.tested.append(smartbytes(job))
 
                 # turn it into a str payload
                 formatted_job = job.format()
@@ -38,7 +39,8 @@ class EngineWorker(threading.Thread):
 
                 self.pool.meissner.mutator.report(job, self.execute(formatted_job))
             except:
-                logging.exception('Worker ', colored_command(self.id), ' encountered a fatal exception.')
+                if self.pool.running:
+                    logging.exception('Worker ', colored_command(self.id), ' encountered a fatal exception.')
                 break
 
 
@@ -50,9 +52,13 @@ class EnginePool(threading.Thread):
         super(EnginePool, self).__init__()
 
         self.meissner = fuzzer
-        self.threads = [
-            EngineWorker(self, id = i) for i in range(1, threads + 1)
-        ]
+        self.threads = list()
+
+        for i in range(1, threads + 1):
+            self.threads.append(EngineWorker(self, id = i))
+
+            if i % 10 == 0:
+                logging.debug('... created ', colored_command(i), ' workers so far')
 
         self.running = False
 
@@ -64,6 +70,31 @@ class EnginePool(threading.Thread):
             thread.start()
 
         # block until all worker threads are done
-        for thread in self.threads:
-            thread.join()
-            logging.debug('Worker ', colored_command(thread.id), ' finished executing.')
+        nthreads = len(self.threads)
+        i = 0
+        while True:
+            thread = self.threads[i % len(self.threads)]
+
+            if thead.isAlive():
+                # swap out its browser object
+                oldbrowser = thread.browser
+                browser = thread._get_browser() # XXX: change this so that we can accept non-selenium engines
+
+                # XXX: race condition :(
+                while thread._browser_lock and thread.isAlive():
+                    # busy wait
+                    time.sleep(0.1)
+
+                thread.browser = browser
+                oldbrowser.quit()
+
+                time.sleep(3)
+            else:
+                # otherwise, let's notify that it's done
+                thread.join()
+                logging.debug('Worker ', colored_command(thread.id), ' finished executing.')
+
+            i += 1
+            nthreads -= 1
+            if nthreads == 0:
+                break

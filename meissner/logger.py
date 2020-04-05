@@ -12,7 +12,7 @@ def strip_ansi(line):
     return ansi_escape.sub('', line)
 
 
-    # cool custom color logging
+# cool custom color logging
 
 
 class ColorLog(object):
@@ -21,7 +21,10 @@ class ColorLog(object):
 
 
     def _log_msg(self, name, *args, **kwargs):
-        return getattr(self._log, 'fatal' if name == 'exception' else name)(self._format_msg(name, *args, **kwargs))
+        return getattr(self._log, {
+            'success' : 'info',
+            'exception' : 'fatal'
+        }.get(name, name))(self._format_msg(name, *args, **kwargs))
 
 
     def _format_msg(self, name, *args, **kwargs):
@@ -52,7 +55,7 @@ class ColorLog(object):
 
 
     def __getattr__(self, name):
-        if name in ['debug', 'info', 'warn', 'warning', 'error', 'critical', 'fatal', 'exception']:
+        if name in ['debug', 'info', 'warn', 'warning', 'error', 'critical', 'fatal', 'exception', 'success']:
             return lambda *args, **kwargs : self._log_msg(name, *args, **kwargs)
 
         return getattr(self._log, name)
@@ -68,8 +71,8 @@ colormap = {
     'warning' : ['bold', 'darkorange'],
     'error' : ['bold', 'lightred'],
     'fatal' : ['bg_red', 'bold_white'],
-
-    'exception' : ['italics', 'darkred']
+    'exception' : ['italics', 'darkred'],
+    'success' : ['bold', 'green']
 }
 
 prompts = {
@@ -78,7 +81,8 @@ prompts = {
     'warn' : '[!]',
     'warning' : '[!]',
     'error' : '[-]',
-    'fatal' : '[-]'
+    'fatal' : '[-]',
+    'success' : '[+]'
 }
 
 log_levels = {
@@ -88,7 +92,8 @@ log_levels = {
     'warning' : logging.WARNING,
     'error' : logging.ERROR,
     'critical' : logging.CRITICAL,
-    'fatal' : logging.FATAL
+    'fatal' : logging.FATAL,
+    'success' : logging.FATAL,
 }
 
 colors = {

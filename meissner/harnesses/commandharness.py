@@ -8,7 +8,7 @@ import subprocess
 class CommandHarness(Harness):
     def __init__(self, cmd):
         logging.debug('... using command: ', colored_command(cmd))
-        
+
         self.cmd = cmd
         self.warn_stderr = True
 
@@ -34,7 +34,7 @@ class CommandHarness(Harness):
 
         # XXX: find a better solution than warn_stderr to not spam console
         if stderr and self.warn_stderr:
-            logger.warning('A test case caused data to be written to stderr.\n    case: ', colored_command(str(payload)), '\n    output: ', colored_command(str(smartbytes(stderr))))
+            logging.warning('A test case caused data to be written to stderr.\n    case: ', colored_command(str(payload)), '\n    output: ', colored_command(str(smartbytes(stderr))))
             self.warn_stderr = False
 
         return stdout

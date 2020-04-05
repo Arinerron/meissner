@@ -16,7 +16,7 @@ class Result:
 
 class Engine:
     def test(self, payload):
-        logger.warning('Using dummy engine ', colored_command(self.__class__.__name__))
+        logging.warning('Using dummy engine ', colored_command(self.__class__.__name__))
         return False
 
 from .seleniumengine import Chrome

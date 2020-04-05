@@ -9,7 +9,7 @@ def readme():
         return f.read()
 
 setup(name = 'meissner',
-      version = '1.0.0',
+      version = '1.0.1',
       description = 'a dictionary-based XSS mutation fuzzer',
       long_description = readme(),
       long_description_content_type="text/markdown",
@@ -17,7 +17,7 @@ setup(name = 'meissner',
       author_email = 'python@aaronesau.com',
       url = 'https://github.com/Arinerron/meissner',
       keywords = 'ctf xss hacking mutation fuzzer fuzzing fuzz dictionary attack attacking injection scripting',
-      packages = find_namespace_packages(include=['meissner.*']),
+      packages = ['meissner'] + find_namespace_packages(include=['meissner.*']),
       scripts = [
         'scripts/meissner'
       ],

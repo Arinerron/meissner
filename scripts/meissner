@@ -12,23 +12,18 @@ except ModuleNotFoundError:
     exit(1)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = 'Meissner Lop - XSS Filter Bypass Exploit Fuzzer')
-    parser.add_argument('--no-ansi', '-c', default = False, action = 'store_true', help = 'disable ANSI coloring on all output')
-    parser.add_argument('--log-level', '-v', default = 'debug', type = str, help = 'set logging level')
-
-    subparsers = parser.add_subparsers(help = 'The sub-command to execute')
-
-    parser_fuzz = subparsers.add_parser('fuzz', aliases = ['test'], help = 'Fuzz for a filter bypass')
-    parser_fuzz.set_defaults(subcommand = 'fuzz')
+    parser_fuzz = argparse.ArgumentParser(description = 'Meissner Lop - XSS Filter Bypass Exploit Fuzzer')
+    parser_fuzz.add_argument('--no-ansi', '-c', default = False, action = 'store_true', help = 'disable ANSI coloring on all output')
+    parser_fuzz.add_argument('--log-level', '-v', default = 'debug', type = str, help = 'set logging level')
 
     parser_fuzz.add_argument('--url', '--uri', '-u', default = False, type = str, help = 'use a URL harness, where {xss} is the injection point')
-    parser_fuzz.add_argument('--dictionary', '--dict', '-d', default = '%s/dictionary/small.txt' % (os.path.dirname(os.path.abspath(__file__)) + '/../../meissner'), type = str, help = 'the meissner mutation dictionary to use')
+    parser_fuzz.add_argument('--dictionary', '--dict', '-d', default = '%s/dictionary/small.txt' % (os.path.dirname(os.path.abspath(__file__)) + '/../../meissner'), type = str, help = 'the Meissner mutation dictionary to use')
     parser_fuzz.add_argument('--threads', '--threads-count', '-t', default = 4, type = int, help = 'the number of threads allocated to use for engines')
     parser_fuzz.add_argument('--filter', '-f', default = [], action='append', help = 'pass the input through a filter before the program')
     parser_fuzz.add_argument('--engine', '--browser', '-e', default = 'chrome', type = str, help = 'the browser rendering engine to use')
     parser_fuzz.add_argument('cmd', nargs = '*', default = None, help = 'the command to execute, where {xss} is the injection point')
 
-    args = parser.parse_args()
+    args = parser_fuzz.parse_args()
 
     # setup logging
 
@@ -42,10 +37,6 @@ if __name__ == '__main__':
         logging.warn('Unable to convert logging level ', colored_command(log_level), ' to an integer.')
 
     logging.setLevel(log_level)
-
-    if not 'subcommand' in vars(args):
-        logging.info('This is the Meissner Lop XSS fuzzer. For usage, run:\n\n    ', colored_command('%s --help' % sys.argv[0]), '\n')
-        exit(0)
 
     # setup harness
 

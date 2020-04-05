@@ -64,10 +64,12 @@ class Meissner:
 
         logging.debug('Populating jobs list...')
         max_jobs = 100000 # XXX: make dynamic limit
-        self.tested = 0
+        self.tested = list()
         self.mutator = meissner.Mutator(self, max_jobs)
         self.mutator.start()
-        while len(self.mutator.jobs) <= threads:
+
+        # XXX: this is kinda ugly. just wait until it's not 0
+        while len(self.mutator.jobs) == 0:
             time.sleep(1)
 
         logging.debug('Finished. Starting all engines...')
@@ -75,19 +77,20 @@ class Meissner:
 
         try:
             last_tested = 0
-            status_wait = 5 # in seconds
+            status_wait = 30 # in seconds
             while self.pool.running:
                 time.sleep(status_wait)
-                rate = ((self.tested - last_tested)/status_wait)
+                rate = ((len(self.tested) - last_tested)/status_wait)
 
                 # give some status information
                 info = {
                     'jobs/sec' : '%.2f' % rate + (
                         # https://github.com/Arinerron/meissner/wiki/My-fuzzer-is-running-slowly!
-                        '\n' if rate > 3 else colored(' (slow? read ' + colored_command('https://bit.ly/39Gggy8') + ')', ['red', 'bold']) + '\n'
+                        # XXX: how slow is "slow"?
+                        '\n' if rate > 10 else colored(' (slow? read ' + colored_command('https://bit.ly/39Gggy8') + ')', ['red', 'bold']) + '\n'
                     ),
 
-                    'solutions' : '%d / %d' % (len(self.solutions), self.tested)
+                    'solutions' : '%d / %d' % (len(self.solutions), len(self.tested))
                 }
 
                 max_length = max([len(x) for x in info.keys()])
@@ -101,10 +104,12 @@ class Meissner:
                     ]
                 logging.info(*message)
 
-                last_tested = self.tested
+                last_tested = len(self.tested)
 
             self.mutator.running = self.pool.running
             logging.error('Meissner finished all fuzzing jobs. Please report this.')
         except KeyboardInterrupt:
             logging.info('Stopping Meissner...')
             self.stop()
+
+        return self.solutions
