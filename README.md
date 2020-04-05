@@ -1,6 +1,6 @@
 # About
 
-Meissner Lop is a dictionary-based mutation-based exploit fuzzer for XSS.
+Meissner Lop is a dictionary-based exploit fuzzer for mutation XSS.
 
 ![xss](https://raw.githubusercontent.com/Arinerron/meissner/master/tests/run.gif)
 
