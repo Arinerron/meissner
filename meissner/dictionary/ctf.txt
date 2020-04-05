@@ -1,0 +1,20 @@
+alert(1)
+alert(1);
+
+let a=1;
+
+<svg onload=alert(1)>
+<script>alert(1)</script>
+
+<script>
+<script
+<!--<script
+<!--
+-->
+;
+:
+"
+'
+`
+
+let b=

@@ -1,4 +1,5 @@
 from meissner.logger import *
+from meissner.engines import SeleniumEngine
 
 from smartbytes import *
 import threading, time
@@ -10,6 +11,7 @@ class EngineWorker(threading.Thread):
 
         self.pool = pool
         self.id = id
+        self._browser_lock = False
 
         # XXX: do we need a new one every run?
         self.engine = self.pool.meissner.engine()
@@ -37,7 +39,9 @@ class EngineWorker(threading.Thread):
                 # pass it through filters
                 formatted_job = self.pool.meissner._format(job)
 
+                self._browser_lock = True
                 self.pool.meissner.mutator.report(job, self.execute(formatted_job))
+                self._browser_lock = False
             except:
                 if self.pool.running:
                     logging.exception('Worker ', colored_command(self.id), ' encountered a fatal exception.')
@@ -75,20 +79,20 @@ class EnginePool(threading.Thread):
         while True:
             thread = self.threads[i % len(self.threads)]
 
-            if thead.isAlive():
+            if thread.isAlive() and isinstance(thread.engine, SeleniumEngine):
                 # swap out its browser object
-                oldbrowser = thread.browser
-                browser = thread._get_browser() # XXX: change this so that we can accept non-selenium engines
+                oldbrowser = thread.engine.browser
+                engine = self.meissner.engine() # XXX: change this so that we can accept non-selenium engines
 
                 # XXX: race condition :(
                 while thread._browser_lock and thread.isAlive():
                     # busy wait
                     time.sleep(0.1)
 
-                thread.browser = browser
+                thread.engine = engine
                 oldbrowser.quit()
 
-                time.sleep(3)
+                time.sleep(120 / len(self.threads))
             else:
                 # otherwise, let's notify that it's done
                 thread.join()

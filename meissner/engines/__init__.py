@@ -19,4 +19,4 @@ class Engine:
         logging.warning('Using dummy engine ', colored_command(self.__class__.__name__))
         return False
 
-from .seleniumengine import Chrome
+from .seleniumengine import SeleniumEngine, Chrome, Firefox

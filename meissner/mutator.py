@@ -114,7 +114,7 @@ class Mutator(threading.Thread):
             possible_jobs.append(possible_job)
 
             # and reverse
-            possible_job = key + smartbytes(base_formatted_job)
+            possible_job = smartbytes(key) + smartbytes(base_formatted_job)
             possible_jobs.append(possible_job)
 
             # XXX: mutation is very poorly written and is buggy right now. :(
@@ -128,6 +128,10 @@ class Mutator(threading.Thread):
             elif job in self.meissner.tested:
                 # we've tested this one already :(
                 continue
+
+            if 'alert' not in job:
+                continue
+            # XXX: move mutations down here. also, find a better solution than what's above
 
             self.jobs.append(Job(job))
 

@@ -9,7 +9,7 @@ def readme():
         return f.read()
 
 setup(name = 'meissner',
-      version = '1.0.1',
+      version = '1.0.2',
       description = 'a dictionary-based XSS mutation fuzzer',
       long_description = readme(),
       long_description_content_type="text/markdown",
