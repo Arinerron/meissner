@@ -72,7 +72,7 @@ class Meissner:
         while len(self.mutator.jobs) == 0:
             time.sleep(1)
 
-        logging.debug('Finished. Starting all engines...')
+        logging.debug('Finished. Starting all workers...')
         self.pool.start()
 
         try:
