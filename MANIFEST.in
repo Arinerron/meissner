@@ -1,0 +1,2 @@
+include meissner/dictionary/*.txt
+include LICENSE
