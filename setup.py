@@ -10,7 +10,7 @@ def readme():
 
 setup(name = 'meissner',
       version = '1.0.2',
-      description = 'a dictionary-based XSS mutation fuzzer',
+      description = 'a dictionary-based fuzzer for mutation XSS',
       long_description = readme(),
       long_description_content_type="text/markdown",
       author = 'Aaron Esau',

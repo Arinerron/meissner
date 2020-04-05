@@ -24,7 +24,7 @@ sudo ./setup.py install
 ```
 usage: meissner [-h] [--no-ansi] [--log-level LOG_LEVEL] [--url URL] [--dictionary DICTIONARY] [--threads THREADS] [--filter FILTER] [--engine ENGINE] [cmd [cmd ...]]
 
-Meissner Lop - XSS Filter Bypass Exploit Fuzzer
+Meissner Lop - Dictionary-based fuzzer for mutation XSS
 
 positional arguments:
   cmd                   the command to execute, where {xss} is the injection point
